@@ -1,28 +1,36 @@
 pipeline {
     agent any
 
-    triggers {
-        pollSCM('H/2 * * * *')
-    }
-
     stages {
 
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Compile') {
-            steps {
+                echo "Building application..."
                 sh 'javac Hello.java'
             }
         }
 
-        stage('Run') {
+        stage('Test') {
             steps {
+                echo "Testing application..."
                 sh 'java Hello'
             }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploying application..."
+                echo "Deployment Successful!"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline executed successfully!"
+        }
+        failure {
+            echo "Pipeline failed!"
         }
     }
 }
