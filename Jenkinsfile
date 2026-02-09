@@ -1,27 +1,34 @@
 pipeline {
     agent any
 
-    triggers {
-        pollSCM('H/2 * * * *')
+    environment {
+        DOCKER_IMAGE = "yourdockerhubusername/hello-app:latest"
     }
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Compile') {
+        stage('Build Java App') {
             steps {
                 sh 'javac Hello.java'
             }
         }
 
-        stage('Run') {
+        stage('Build Docker Image') {
             steps {
-                sh 'java Hello'
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-hub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker push $DOCKER_IMAGE'
+                }
             }
         }
     }
