@@ -2,16 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "yourdockerhubusername/hello-app:latest"
+        DOCKER_IMAGE = "dhirajraut05/hello-app:latest"
     }
 
     stages {
-
-        stage('Build Java App') {
-            steps {
-                sh 'javac Hello.java'
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
@@ -22,12 +16,14 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'docker-hub',
+                    credentialsId: 'dhiraj-docker-hub',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh 'docker push $DOCKER_IMAGE'
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $DOCKER_IMAGE
+                    '''
                 }
             }
         }
